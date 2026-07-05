@@ -1,0 +1,2 @@
+.vagrant/
+inventories/*/group_vars/*/vault.yml

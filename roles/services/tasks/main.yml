@@ -1,0 +1,9 @@
+---
+- name: Manage service state
+  ansible.builtin.service:
+    name: "{{ item.name }}"
+    enabled: "{{ item.enabled | default(true) }}"
+    state: "{{ item.state | default('started') }}"
+  loop: "{{ managed_services }}"
+  tags:
+    - services

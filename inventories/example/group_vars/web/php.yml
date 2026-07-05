@@ -1,0 +1,25 @@
+---
+php_modules:
+  - [opcache, opcache.so, php8.1-opcache]
+  - [redis, redis.so, php8.1-redis]
+  - [curl, curl.so, php8.1-curl, {dummy.api_key: "{{ dummy_api_key }}"}]
+
+php_fpm_pools:
+  - name: www
+    listen: /run/php/php8.1-fpm.sock
+    user: www-data
+    group: www-data
+    settings:
+      pm: dynamic
+      pm.max_children: "12"
+      pm.start_servers: "3"
+      pm.min_spare_servers: "2"
+      pm.max_spare_servers: "4"
+  - name: admin
+    listen: 127.0.0.1:9082
+    user: www-data
+    group: www-data
+    settings:
+      pm: ondemand
+      pm.max_children: "4"
+      pm.process_idle_timeout: 10s

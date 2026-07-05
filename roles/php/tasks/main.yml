@@ -1,0 +1,112 @@
+---
+- name: Install PHP base packages
+  ansible.builtin.apt:
+    name: "{{ php_packages }}"
+    state: present
+    update_cache: true
+  tags:
+    - packages
+    - php
+
+- name: Install PHP module packages
+  ansible.builtin.apt:
+    name: "{{ item[2] | default('php' ~ php_version ~ '-' ~ item[0]) }}"
+    state: present
+  loop: "{{ php_modules }}"
+  tags:
+    - packages
+    - php
+    - php-modules
+
+- name: Create PHP configuration directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop: "{{ php_directories }}"
+  tags:
+    - directories
+    - php
+
+- name: Deploy PHP INI files
+  ansible.builtin.template:
+    src: php.ini.j2
+    dest: "{{ item.path }}"
+    owner: root
+    group: root
+    mode: "0644"
+  loop: "{{ php_ini_files }}"
+  notify: Restart php-fpm
+  tags:
+    - config
+    - php
+    - php-ini
+
+- name: Deploy PHP-FPM global config
+  ansible.builtin.template:
+    src: php-fpm.conf.j2
+    dest: "{{ php_fpm_conf_dir }}/php-fpm.conf"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart php-fpm
+  tags:
+    - config
+    - php
+    - php-fpm
+
+- name: Deploy PHP module INI files
+  ansible.builtin.template:
+    src: module.ini.j2
+    dest: "{{ php_mods_available_dir }}/{{ item[0] }}.ini"
+    owner: root
+    group: root
+    mode: "0644"
+  loop: "{{ php_modules }}"
+  notify:
+    - Restart php-fpm
+    - Report PHP module config change
+  tags:
+    - config
+    - php
+    - php-modules
+
+- name: Enable PHP modules for FPM and CLI
+  ansible.builtin.file:
+    src: "{{ php_mods_available_dir }}/{{ item[0][0] }}.ini"
+    dest: "{{ item[1] }}/20-{{ item[0][0] }}.ini"
+    state: link
+  loop: "{{ php_modules | product([php_fpm_conf_d_dir, php_cli_conf_d_dir]) | list }}"
+  notify:
+    - Restart php-fpm
+    - Report PHP module config change
+  tags:
+    - config
+    - php
+    - php-modules
+
+- name: Deploy PHP-FPM pool configs
+  ansible.builtin.template:
+    src: pool.conf.j2
+    dest: "{{ php_fpm_pool_dir }}/{{ item.name }}.conf"
+    owner: root
+    group: root
+    mode: "0644"
+  loop: "{{ php_fpm_pools }}"
+  notify: Reload php-fpm
+  tags:
+    - config
+    - php
+    - php-pools
+
+- name: Ensure PHP-FPM service is enabled and started
+  ansible.builtin.service:
+    name: "{{ php_fpm_service_name }}"
+    enabled: true
+    state: started
+  tags:
+    - services
+    - php
+    - php-fpm

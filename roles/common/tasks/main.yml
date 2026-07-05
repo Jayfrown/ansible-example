@@ -1,0 +1,47 @@
+---
+- name: Assert supported Ubuntu release
+  ansible.builtin.assert:
+    that:
+      - ansible_distribution == "Ubuntu"
+      - ansible_distribution_release == "jammy"
+    fail_msg: "This example targets Ubuntu 22.04 Jammy hosts."
+    success_msg: "Running on supported Ubuntu Jammy host."
+  tags:
+    - facts
+    - common
+
+- name: Install common packages
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: true
+  loop: "{{ common_packages }}"
+  tags:
+    - packages
+    - common
+
+- name: Create managed directories
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode | default('0755') }}"
+  loop: "{{ managed_directories }}"
+  tags:
+    - directories
+    - common
+
+- name: Deploy generic INI files
+  ansible.builtin.template:
+    src: generic.ini.j2
+    dest: "{{ item.path }}"
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode | default('0644') }}"
+  loop: "{{ managed_ini_files }}"
+  tags:
+    - config
+    - ini
+    - facts
+    - common

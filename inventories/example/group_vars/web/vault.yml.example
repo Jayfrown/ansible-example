@@ -1,0 +1,6 @@
+---
+# Create the real file with:
+# ansible-vault create inventories/example/group_vars/web/vault.yml
+#
+# The encrypted file should define:
+vault_dummy_api_key: replace-with-real-secret

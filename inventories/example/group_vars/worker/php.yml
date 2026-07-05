@@ -1,0 +1,12 @@
+---
+php_modules:
+  - [apcu, apcu.so, php8.1-apcu]
+
+php_fpm_pools:
+  - name: jobs
+    listen: 127.0.0.1:9083
+    user: www-data
+    group: www-data
+    settings:
+      pm: static
+      pm.max_children: "2"

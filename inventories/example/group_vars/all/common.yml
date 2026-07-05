@@ -1,0 +1,49 @@
+---
+common_packages:
+  - curl
+  - git
+  - htop
+  - vim
+
+managed_directories:
+  - path: /etc/example-app
+    owner: root
+    group: root
+    mode: "0755"
+  - path: /etc/example-app/conf.d
+    owner: root
+    group: root
+    mode: "0755"
+
+managed_ini_files:
+  - path: /etc/example-app/app.ini
+    owner: root
+    group: root
+    mode: "0644"
+    sections:
+      general:
+        ding: dong
+        environment: example
+      feature_flags:
+        enabled: "true"
+  - path: /etc/example-app/conf.d/module.ini
+    owner: root
+    group: root
+    mode: "0644"
+    sections:
+      module:
+        name: sample
+        enabled: "1"
+  - path: /etc/example-app/facts.ini
+    owner: root
+    group: root
+    mode: "0644"
+    sections:
+      platform:
+        distribution: "{{ ansible_distribution }}"
+        release: "{{ ansible_distribution_release }}"
+        version: "{{ ansible_distribution_version }}"
+        architecture: "{{ ansible_architecture }}"
+      resources:
+        memory_mb: "{{ ansible_memtotal_mb }}"
+        vcpus: "{{ ansible_processor_vcpus | default(ansible_processor_count) }}"

@@ -1,0 +1,5 @@
+---
+managed_services:
+  - name: ssh
+    enabled: true
+    state: started

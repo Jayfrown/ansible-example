@@ -1,0 +1,2 @@
+---
+dummy_api_key: "{{ vault_dummy_api_key }}"

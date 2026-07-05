@@ -1,0 +1,48 @@
+---
+php_version: "8.1"
+php_fpm_service_name: "php{{ php_version }}-fpm"
+php_base_dir: "/etc/php/{{ php_version }}"
+php_fpm_conf_dir: "{{ php_base_dir }}/fpm"
+php_fpm_pool_dir: "{{ php_fpm_conf_dir }}/pool.d"
+php_fpm_conf_d_dir: "{{ php_fpm_conf_dir }}/conf.d"
+php_cli_conf_dir: "{{ php_base_dir }}/cli"
+php_cli_conf_d_dir: "{{ php_cli_conf_dir }}/conf.d"
+php_mods_available_dir: "{{ php_base_dir }}/mods-available"
+
+php_packages:
+  - "php{{ php_version }}-fpm"
+  - "php{{ php_version }}-cli"
+
+php_directories:
+  - "{{ php_fpm_conf_dir }}"
+  - "{{ php_fpm_pool_dir }}"
+  - "{{ php_fpm_conf_d_dir }}"
+  - "{{ php_cli_conf_dir }}"
+  - "{{ php_cli_conf_d_dir }}"
+  - "{{ php_mods_available_dir }}"
+
+php_ini_files:
+  - path: "{{ php_fpm_conf_dir }}/php.ini"
+    sections:
+      PHP:
+        engine: "On"
+        memory_limit: "{{ '512M' if (ansible_memtotal_mb | default(0) | int) >= 2048 else '256M' }}"
+        upload_max_filesize: 32M
+      Date:
+        date.timezone: UTC
+  - path: "{{ php_cli_conf_dir }}/php.ini"
+    sections:
+      PHP:
+        engine: "On"
+        memory_limit: "{{ '1024M' if (ansible_memtotal_mb | default(0) | int) >= 2048 else '512M' }}"
+      Date:
+        date.timezone: UTC
+
+php_fpm_global:
+  pid: "/run/php/php{{ php_version }}-fpm.pid"
+  error_log: "/var/log/php{{ php_version }}-fpm.log"
+php_fpm_includes:
+  - "{{ php_fpm_pool_dir }}/*.conf"
+
+php_modules: []
+php_fpm_pools: []

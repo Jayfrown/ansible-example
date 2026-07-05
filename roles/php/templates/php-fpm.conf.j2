@@ -1,0 +1,8 @@
+[global]
+{% for key, value in php_fpm_global.items() %}
+{{ key }}={{ value }}
+{% endfor %}
+
+{% for include_path in php_fpm_includes %}
+include={{ include_path }}
+{% endfor %}

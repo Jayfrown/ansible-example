@@ -1,0 +1,12 @@
+---
+- name: Base host configuration
+  hosts: "{{ base_target_hosts | default('all') }}"
+  become: true
+  gather_facts: true
+  roles:
+    - role: common
+      tags:
+        - common
+    - role: services
+      tags:
+        - services

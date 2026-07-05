@@ -1,0 +1,8 @@
+[{{ item.name }}]
+user={{ item.user | default('www-data') }}
+group={{ item.group | default('www-data') }}
+listen={{ item.listen }}
+
+{% for key, value in item.settings.items() %}
+{{ key }}={{ value }}
+{% endfor %}

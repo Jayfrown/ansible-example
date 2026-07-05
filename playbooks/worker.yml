@@ -1,0 +1,13 @@
+---
+- name: Import base host configuration
+  import_playbook: base.yml
+  vars:
+    base_target_hosts: worker
+
+- name: Worker PHP-FPM configuration
+  hosts: worker
+  become: true
+  roles:
+    - role: php
+      tags:
+        - php
